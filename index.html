@@ -81,24 +81,13 @@
                     </tr>
                 </thead>
                 <tbody>
-
+                    
                 {{#each entry}}
-
-                    {{this}}
                     <tr>
-                        <td>{{ gsx$roller["$t"] }}</td>
-                        <td>{{ gsx$avg["$t"]  }}</td>
-                        <td>{{ gsx$total["$t"] }}</td>
-                        <td>{{ gsx$wk1["$t"] }}</td>
-                        <td>{{ gsx$wk2["$t"] }}</td>
-                        <td>{{ gsx$wk3["$t"] }}</td>
-                        <td>{{ gsx$wk4["$t"] }}</td>
-                        <td>{{ gsx$wk5["$t"] }}</td>
-                        <td>{{ gsx$wk6["$t"] }}</td>
-                        <td>{{ gsx$wk7["$t"] }}</td>
-                        <td>{{ gsx$wk8["$t"] }}</td>
-                            
+                        <td>{{roller}}</td>
+                        <td>{{wk1}}</td>
                     </tr>
+        
                 {{/each}}
                     
                 </tbody>
@@ -184,9 +173,14 @@
                     promise.then(function(){
                         var source = $("#playerStats-template").html();
                         var template = Handlebars.compile(source);
-                        var entry = $scope.stats.data.feed;
+                        //var entry = $scope.stats.data.feed.entry;
+                        var data = {
+                            entry : [{roller: "Joe", wk1: "33.3"}, {roller: "Pete", wk1: "33.3"}, {roller: "Dave", wk1: "33.3"}]
+                            
+                        }
+                        $log.log("entry", data);
                         $log.log("time to render");
-                        $log.log(template(entry));
+                        $log.log(template(data));
                     })
                 }
 
