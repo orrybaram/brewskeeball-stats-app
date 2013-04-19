@@ -38,7 +38,7 @@
                     </select>
                 </li>
                 <li>
-                    <select id="category">
+                    <select id="category" ng-model="stat" ng-change="renderStats()">
                         <option value="">--Choose Stat--</option>
                         <option value="od6">Standings</option>
                         <option value="od5">Totals</option>
@@ -61,10 +61,7 @@
         <script src="js/plugins.js"></script>
         <script src="js/main.js"></script>
         <script>    
-        function _log(){
-
-        }
-        function Controller($scope, $http, $log){
+        function Controller($scope, $http, $log, $q){
             $scope.keys = {};
             $scope.yearAndTri = "";
             $scope.keysSheet = ($scope.yearAndTri === "2012-3") ? "od5" : "oda";
@@ -107,7 +104,34 @@
                 $log.log($scope.keys);
                 })
             }
-            $scope.requestStatsData = function(){
+            $scope.requestStatsData = function(league,division,category){
+                var d = $q.defer();
+                    
+                    $log.log($scope.keys[league][division])
+                    if(league !== "" && division !== "" && category !== ""){
+                        //$http.jsonp()
+                        d.resolve();
+                    }
+
+                    return d.promise;
+
+            }
+
+            $scope.renderStats = function(){
+                var league = $("#league").val(),
+                    division = $("#division").val(), 
+                    ws = $("#category").val();
+                
+                $.when($scope.requestStatsData(league,division, ws)).then(function(){
+                    var url = "https://spreadsheets.google.com/feeds/list/"+$scope.keys[league][division]+"/"+ws+"/public/values?alt=json&callback=JSON_CALLBACK";
+                    $log.log(url);
+                    $http.jsonp(url).then(function(response){
+                        $log.log(response);
+                    })
+
+                });
+
+
 
             }
             $scope.createDivisionSelectBox = function(){
