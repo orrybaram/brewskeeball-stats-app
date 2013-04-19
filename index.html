@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html xmlns:ng="http://angularjs.org" ng-app> <!--<![endif]-->
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title></title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width">
+
+        <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+
+        <link rel="stylesheet" href="css/normalize.css">
+        <link rel="stylesheet" href="css/main.css">
+        <script src="js/vendor/modernizr-2.6.2.min.js"></script>
+        <script src="js/vendor/angular.min.js"></script>
+    </head>
+    <body ng-controller="Controller">
+
+        <form id="statsNav" ng-init="createHashmapForKeys()">
+            <ol>
+                <li class="bbq" id="test">
+                    <select id="league" ng-model="city" ng-change="createDivisionSelectBox()">
+                        <option value="">--Select League--</option>
+                        <option value="aus">Austin</option>
+                        <option value="nyc">New York</option>
+                        <option value="sf">San Francisco</option>
+                        <option value="wil">Wilmington</option>
+                        <!--<option value="den">Denver</option>
+                        <option value="osk">Oskar Blues</option>-->
+                    </select>
+                </li>
+                <li>
+                    <select id="division">
+                        <option value="">--Select Division--</option>
+                    </select>
+                </li>
+                <li>
+                    <select id="category">
+                        <option value="">--Choose Stat--</option>
+                        <option value="od6">Standings</option>
+                        <option value="od5">Totals</option>
+                        <option value="od4">High Rollers</option>
+                        <option value="odb">Full Circles</option>
+                        <option value="oda">Cherries</option>
+                        <option value="od8">Chips</option>
+                        <option value="od9">Hundos</option>
+                        <option value="ocy">46+</option>
+                        <option value="ocz">High Fives</option>
+                    </select>
+                </li>
+            </ol>
+        </form>
+
+
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
+        <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.9.0.min.js"><\/script>')</script>
+        
+        <script src="js/plugins.js"></script>
+        <script src="js/main.js"></script>
+        <script>    
+        function _log(){
+
+        }
+        function Controller($scope, $http, $log){
+            $scope.keys = {};
+            $scope.yearAndTri = "";
+            $scope.keysSheet = ($scope.yearAndTri === "2012-3") ? "od5" : "oda";
+            $scope.dayOfWeekObj = {
+                'sun'  : "Sunday",
+                'mon'  : "Monday",
+                'tue'  : "Tuesday",
+                'wed'  : "Wednesday",
+                'thur' : "Thursday",
+                'fri'  : "Friday",
+                'sat'  : "Saturday"
+            }
+
+            $scope.createHashmapForKeys = function(){
+                $log.log($scope);
+                
+
+                // URL for data
+                $scope.url = "https://spreadsheets.google.com/feeds/list/0At0CaY3KoBvedDBFcXFsUmE3aTZWVURYcGFpckFaM0E/od5/public/values?alt=json&callback=JSON_CALLBACK";
+                
+
+                //JSONP request to get said data
+                $http.jsonp($scope.url).then(function(response){
+                        var dataStore = response.data.feed.entry,
+                        hash = {}, 
+                        i, 
+                        n, 
+                        league, 
+                        night, 
+                        key,
+                        ds;
+
+                    for (i = 0, n = dataStore.length; i < n; ++i) {
+                      ds = dataStore[i];
+                      league = $scope.keys[ds.gsx$league['$t'].toLowerCase()] = $scope.keys[ds.gsx$league['$t'].toLowerCase()] || {};
+                      league[ds.gsx$night['$t'].toLowerCase()] = ds.gsx$key['$t'];
+                    }
+
+                //log the keys
+                $log.log($scope.keys);
+                })
+            }
+            $scope.requestStatsData = function(){
+
+            }
+            $scope.createDivisionSelectBox = function(){
+                var league = $('#league').val(),
+                    division = $scope.keys[league],
+                    $division = $("#division"),
+                    lenArr   = [];
+                    
+                    $division.empty();
+
+                    for (var x in division){
+                        lenArr.push(x);
+                        $division.append('<option value="'+x+'">'+$scope.dayOfWeekObj[x]+'</option>');
+                    }
+                    
+                    if (lenArr.length !== 1){
+                        $division.prepend('<option value="">--Select Division--</option>'); 
+                    }
+
+
+
+            }
+            $scope.alertMe = function(){
+                alert("boom");
+            }
+            $scope.loadStats = function(){
+                $log.log($scope.leagues);
+                $log.log($scope.category);
+            }
+        }
+        </script>
+    </body>
+</html>
