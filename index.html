@@ -60,9 +60,11 @@
         
         <script src="js/plugins.js"></script>
         <script src="js/main.js"></script>
+        <script src="js/vendor/handlebars.js"></script>
         <script>    
         function Controller($scope, $http, $log, $q){
             $scope.keys = {};
+            $scope.stats = {};
             $scope.yearAndTri = "";
             $scope.http = "https://spreadsheets.google.com/feeds/list/";
             $scope.callback = "/public/values?alt=json&callback=JSON_CALLBACK";
@@ -110,12 +112,9 @@
                 var d = $q.defer(),
                     url = $scope.http + $scope.keys[league][division]+"/"+ws + $scope.callback;
                     
-                    // $log.log(league);
-                    // $log.log(division);
-                    // $log.log(category);
-                    
                         $http.jsonp(url).then(function(response){
-                            $log.log(response);
+
+                            $scope.stats = response;
                             d.resolve();
                         })
 
@@ -128,16 +127,18 @@
                     division = $("#division").val(), 
                     ws = $("#category").val();
 
+                
+
                     $log.log(league);
                     $log.log(division);
                     $log.log(ws);
                     $log.log(league !== "" && division !== "" && ws !== "")
                 if(league != "" && division != "" && ws != ""){
-                    $.when($scope.requestStatsData(league,division, ws)).done(function(){
-                        
+                    var promise = $scope.requestStatsData(league,division, ws);
+                    promise.then(function(){
+                        $log.log($scope.stats.data.feed.entry);
                         $log.log("time to render");
-                        
-                    });
+                    })
                 }
 
 
