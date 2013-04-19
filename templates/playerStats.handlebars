@@ -1,0 +1,41 @@
+
+
+<table class="stats playerStats tablesorter" id="tableSorted">
+	<caption>League Standings</caption>
+	<thead>
+		<tr>
+			<th class="long">Roller</th>
+			<th>Average</th>
+			<th>Total</th>
+			<th>Week 1</th>
+			<th>Week 2</th>
+			<th>Week 3</th>
+			<th>Week 4</th>
+			<th>Week 5</th>
+			<th>Week 6</th>
+			<th>Week 7</th>
+			<th>Week 8</th>
+			
+		</tr>
+	</thead>
+	<tbody>
+
+	{{#each feed.entry}}
+		<tr>
+			<td>{{ gsx$roller["$t"] }}</td>
+			<td>{{ avg }}</td>
+			<td>{{ gsx$total["$t"] }}</td>
+			<td>{{ gsx$wk1["$t"] }}</td>
+			<td>{{ gsx$wk2["$t"] }}</td>
+			<td>{{ gsx$wk3["$t"] }}</td>
+			<td>{{ gsx$wk4["$t"] }}</td>
+			<td>{{ gsx$wk5["$t"] }}</td>
+			<td>{{ gsx$wk6["$t"] }}</td>
+			<td>{{ gsx$wk7["$t"] }}</td>
+			<td>{{ gsx$wk8["$t"] }}</td>
+				
+		</tr>
+	{{/each}}
+		
+	</tbody>
+</table>

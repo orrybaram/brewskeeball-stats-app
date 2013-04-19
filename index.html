@@ -61,6 +61,49 @@
         <script src="js/plugins.js"></script>
         <script src="js/main.js"></script>
         <script src="js/vendor/handlebars.js"></script>
+        <script id="playerStats-template" type="text/x-handlebars-template">
+            <table class="stats playerStats tablesorter" id="tableSorted">
+                <caption>League Standings</caption>
+                <thead>
+                    <tr>
+                        <th class="long">Roller</th>
+                        <th>Average</th>
+                        <th>Total</th>
+                        <th>Week 1</th>
+                        <th>Week 2</th>
+                        <th>Week 3</th>
+                        <th>Week 4</th>
+                        <th>Week 5</th>
+                        <th>Week 6</th>
+                        <th>Week 7</th>
+                        <th>Week 8</th>
+                        
+                    </tr>
+                </thead>
+                <tbody>
+
+                {{#each entry}}
+
+                    {{this}}
+                    <tr>
+                        <td>{{ gsx$roller["$t"] }}</td>
+                        <td>{{ gsx$avg["$t"]  }}</td>
+                        <td>{{ gsx$total["$t"] }}</td>
+                        <td>{{ gsx$wk1["$t"] }}</td>
+                        <td>{{ gsx$wk2["$t"] }}</td>
+                        <td>{{ gsx$wk3["$t"] }}</td>
+                        <td>{{ gsx$wk4["$t"] }}</td>
+                        <td>{{ gsx$wk5["$t"] }}</td>
+                        <td>{{ gsx$wk6["$t"] }}</td>
+                        <td>{{ gsx$wk7["$t"] }}</td>
+                        <td>{{ gsx$wk8["$t"] }}</td>
+                            
+                    </tr>
+                {{/each}}
+                    
+                </tbody>
+            </table>
+        </script>
         <script>    
         function Controller($scope, $http, $log, $q){
             $scope.keys = {};
@@ -80,7 +123,7 @@
             }
 
             $scope.createHashmapForKeys = function(){
-                $log.log($scope);
+                $log.log("scope", $scope);
                 
                 
                 // URL for data
@@ -129,15 +172,21 @@
 
                 
 
-                    $log.log(league);
-                    $log.log(division);
-                    $log.log(ws);
-                    $log.log(league !== "" && division !== "" && ws !== "")
+                    // $log.log(league);
+                    // $log.log(division);
+                    // $log.log(ws);
+                    // $log.log(league !== "" && division !== "" && ws !== "")
+
+
+
                 if(league != "" && division != "" && ws != ""){
                     var promise = $scope.requestStatsData(league,division, ws);
                     promise.then(function(){
-                        $log.log($scope.stats.data.feed.entry);
+                        var source = $("#playerStats-template").html();
+                        var template = Handlebars.compile(source);
+                        var entry = $scope.stats.data.feed;
                         $log.log("time to render");
+                        $log.log(template(entry));
                     })
                 }
 
