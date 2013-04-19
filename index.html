@@ -81,15 +81,19 @@
                     </tr>
                 </thead>
                 <tbody>
-                    
                 {{#each entry}}
                     <tr>
                         <td>{{roller}}</td>
                         <td>{{wk1}}</td>
+                        <td>{{wk2}}</td>
+                        <td>{{wk3}}</td>
+                        <td>{{wk4}}</td>
+                        <td>{{wk5}}</td>
+                        <td>{{wk6}}</td>
+                        <td>{{wk7}}</td>
+                        <td>{{wk8}}</td>
                     </tr>
-        
                 {{/each}}
-                    
                 </tbody>
             </table>
         </script>
@@ -113,7 +117,6 @@
 
             $scope.createHashmapForKeys = function(){
                 $log.log("scope", $scope);
-                
                 
                 // URL for data
                 $scope.url = $scope.http + "0At0CaY3KoBvedDBFcXFsUmE3aTZWVURYcGFpckFaM0E/od5" + $scope.callback;
@@ -145,40 +148,59 @@
                     url = $scope.http + $scope.keys[league][division]+"/"+ws + $scope.callback;
                     
                         $http.jsonp(url).then(function(response){
-
                             $scope.stats = response;
                             d.resolve();
                         })
-
+                        
                     return d.promise;
-
             }
 
             $scope.renderStats = function(){
                 var league = $("#league").val(),
                     division = $("#division").val(), 
-                    ws = $("#category").val();
-
-                
-
-                    // $log.log(league);
-                    // $log.log(division);
-                    // $log.log(ws);
-                    // $log.log(league !== "" && division !== "" && ws !== "")
-
-
+                    ws = $("#category").val(),
+                    category = 
+                        (ws === "od6") ? "standings" : 
+                        (ws === "od4") ? "playerStats" : 
+                        (ws === "od5") ? "totals" : "marks";
 
                 if(league != "" && division != "" && ws != ""){
-                    var promise = $scope.requestStatsData(league,division, ws);
+                    var promise = $scope.requestStatsData(league,division,ws);
                     promise.then(function(){
-                        var source = $("#playerStats-template").html();
+                        var source = $("#"+category+"-template").html();
                         var template = Handlebars.compile(source);
-                        //var entry = $scope.stats.data.feed.entry;
-                        var data = {
-                            entry : [{roller: "Joe", wk1: "33.3"}, {roller: "Pete", wk1: "33.3"}, {roller: "Dave", wk1: "33.3"}]
+                        var entry = $scope.stats.data.feed.entry;
+                        // var data = {
+                        //     entry : [{roller: "Joe", wk1: "33.3"}, {roller: "Pete", wk1: "33.3"}, {roller: "Dave", wk1: "33.3"}]
                             
-                        }
-                        $log.log("entry", data);
+                        // };
+
+                        var data = {};
+                            data.entry = [];
+
+                            for (var x=0; x<entry.length;x++){
+                                var tempObj = {};
+                                    if(category === "marks" || category === "playerStats"){
+                                        tempObj.roller = entry[x].gsx$roller['$t'];    
+                                    }
+                                    
+                                    tempObj.wk1 = entry[x].gsx$wk1['$t'];
+                                    tempObj.wk2 = entry[x].gsx$wk2['$t'];
+                                    tempObj.wk3 = entry[x].gsx$wk3['$t'];
+                                    tempObj.wk4 = entry[x].gsx$wk4['$t'];
+                                    tempObj.wk5 = entry[x].gsx$wk5['$t'];
+                                    tempObj.wk6 = entry[x].gsx$wk6['$t'];
+                                    tempObj.wk7 = entry[x].gsx$wk7['$t'];
+                                    tempObj.wk8 = entry[x].gsx$wk8['$t'];
+                                    tempObj.total = entry[x].gsx$total['$t'];
+                                    tempObj.avg = entry[x].gsx$avg['$t'];
+
+
+                                data.entry.push(tempObj);
+                            }
+
+
+                        $log.log("data", data);
                         $log.log("time to render");
                         $log.log(template(data));
                     })
