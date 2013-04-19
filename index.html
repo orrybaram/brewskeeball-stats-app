@@ -33,7 +33,7 @@
                     </select>
                 </li>
                 <li>
-                    <select id="division">
+                    <select id="division" ng-model="division" ng-change="renderStats()">
                         <option value="">--Select Division--</option>
                     </select>
                 </li>
@@ -64,6 +64,8 @@
         function Controller($scope, $http, $log, $q){
             $scope.keys = {};
             $scope.yearAndTri = "";
+            $scope.http = "https://spreadsheets.google.com/feeds/list/";
+            $scope.callback = "/public/values?alt=json&callback=JSON_CALLBACK";
             $scope.keysSheet = ($scope.yearAndTri === "2012-3") ? "od5" : "oda";
             $scope.dayOfWeekObj = {
                 'sun'  : "Sunday",
@@ -78,9 +80,9 @@
             $scope.createHashmapForKeys = function(){
                 $log.log($scope);
                 
-
+                
                 // URL for data
-                $scope.url = "https://spreadsheets.google.com/feeds/list/0At0CaY3KoBvedDBFcXFsUmE3aTZWVURYcGFpckFaM0E/od5/public/values?alt=json&callback=JSON_CALLBACK";
+                $scope.url = $scope.http + "0At0CaY3KoBvedDBFcXFsUmE3aTZWVURYcGFpckFaM0E/od5" + $scope.callback;
                 
 
                 //JSONP request to get said data
@@ -104,14 +106,18 @@
                 $log.log($scope.keys);
                 })
             }
-            $scope.requestStatsData = function(league,division,category){
-                var d = $q.defer();
+            $scope.requestStatsData = function(league,division,ws){
+                var d = $q.defer(),
+                    url = $scope.http + $scope.keys[league][division]+"/"+ws + $scope.callback;
                     
-                    $log.log($scope.keys[league][division])
-                    if(league !== "" && division !== "" && category !== ""){
-                        //$http.jsonp()
-                        d.resolve();
-                    }
+                    // $log.log(league);
+                    // $log.log(division);
+                    // $log.log(category);
+                    
+                        $http.jsonp(url).then(function(response){
+                            $log.log(response);
+                            d.resolve();
+                        })
 
                     return d.promise;
 
@@ -121,15 +127,18 @@
                 var league = $("#league").val(),
                     division = $("#division").val(), 
                     ws = $("#category").val();
-                
-                $.when($scope.requestStatsData(league,division, ws)).then(function(){
-                    var url = "https://spreadsheets.google.com/feeds/list/"+$scope.keys[league][division]+"/"+ws+"/public/values?alt=json&callback=JSON_CALLBACK";
-                    $log.log(url);
-                    $http.jsonp(url).then(function(response){
-                        $log.log(response);
-                    })
 
-                });
+                    $log.log(league);
+                    $log.log(division);
+                    $log.log(ws);
+                    $log.log(league !== "" && division !== "" && ws !== "")
+                if(league != "" && division != "" && ws != ""){
+                    $.when($scope.requestStatsData(league,division, ws)).done(function(){
+                        
+                        $log.log("time to render");
+                        
+                    });
+                }
 
 
 
