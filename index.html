@@ -14,6 +14,11 @@
 
         <link rel="stylesheet" href="css/normalize.css">
         <link rel="stylesheet" href="css/main.css">
+        <link rel="stylesheet" href="http://joe-kanakaraj.com/skeeball/css/bootstrap.min.css">
+        <link rel="stylesheet" href="css/bootstrap.min.responsive.css">
+        <style>
+            #stats-content {display:none;}
+        </style>
         <script src="js/vendor/modernizr-2.6.2.min.js"></script>
         <script src="js/vendor/angular.min.js"></script>
     </head>
@@ -54,6 +59,7 @@
             </ol>
         </form>
 
+        <div id="stats-content"></div>
 
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
         <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.9.0.min.js"><\/script>')</script>
@@ -61,8 +67,110 @@
         <script src="js/plugins.js"></script>
         <script src="js/main.js"></script>
         <script src="js/vendor/handlebars.js"></script>
+
+        <script id="marks-template" type="text/x-handlebars-template">
+            <table class="stats marks tablesorter table-striped" id="tableSorted">
+                <caption>League Standings</caption>
+                <thead>
+                    <tr>
+                        <th class="long">Roller</th>
+                        <th>Total</th>
+                        <th>Week 1</th>
+                        <th>Week 2</th>
+                        <th>Week 3</th>
+                        <th>Week 4</th>
+                        <th>Week 5</th>
+                        <th>Week 6</th>
+                        <th>Week 7</th>
+                        <th>Week 8</th>
+                    </tr>
+                </thead>
+                <tbody>
+                   {{#each entry}}
+                    <tr>
+                        <td>{{roller}}</td>
+                        <td>{{total}}</td>
+                        <td>{{wk1}}</td>
+                        <td>{{wk2}}</td>
+                        <td>{{wk3}}</td>
+                        <td>{{wk4}}</td>
+                        <td>{{wk5}}</td>
+                        <td>{{wk6}}</td>
+                        <td>{{wk7}}</td>
+                        <td>{{wk8}}</td>
+                    </tr>
+                    {{/each}}
+                </tbody>
+            </table>
+        </script>
+
+        <script id="totals-template" type="text/x-handlebars-template">        
+            <table class="totals playerStats tablesorter table-striped" id="tableSorted">
+                <caption>League Standings</caption>
+                <thead>
+                    <tr>
+                        <th class="long">Team</th>
+                        <th>Total</th>
+                        <th>Week 1</th>
+                        <th>Week 2</th>
+                        <th>Week 3</th>
+                        <th>Week 4</th>
+                        <th>Week 5</th>
+                        <th>Week 6</th>
+                        <th>Week 7</th>
+                        <th>Week 8</th>
+                        <th>Weeks played</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {{#each entry}}
+                    <tr>
+                        <td>{{team}}</td>
+                        <td>{{total}}</td>
+                        <td>{{wk1}}</td>
+                        <td>{{wk2}}</td>
+                        <td>{{wk3}}</td>
+                        <td>{{wk4}}</td>
+                        <td>{{wk5}}</td>
+                        <td>{{wk6}}</td>
+                        <td>{{wk7}}</td>
+                        <td>{{wk8}}</td>
+                        <td>{{played}}</td>
+                    </tr>
+                {{/each}}
+                </tbody>
+            </table>
+        </script>
+        <script id="standings-template" type="text/x-handlebars-template">
+            <table class="standings playerStats tablesorter table-striped" id="tableSorted">
+                <caption>League Standings</caption>
+                <thead>
+                    <tr>
+                        <th class="long">TEAM</th>
+                        <th>AVERAGE</th>
+                        <th>TOTAL</th>
+                        <th>MATCH HIGH</th>
+                        <th>PINT RACE</th>
+                        <th>B.M.T. BID</th>
+                        
+                    </tr>
+                </thead>
+                <tbody>
+                {{#each entry}}
+                    <tr>
+                        <td>{{team}}</td>
+                        <td>{{avg}}</td>
+                        <td>{{total}}</td>
+                        <td>{{high}}</td>
+                        <td>{{pint}}</td>
+                        <td>{{{bid}}</td>
+                    </tr>
+                {{/each}}
+                </tbody>
+            </table>
+        </script>
         <script id="playerStats-template" type="text/x-handlebars-template">
-            <table class="stats playerStats tablesorter" id="tableSorted">
+            <table class="stats playerStats tablesorter table-striped" id="tableSorted">
                 <caption>League Standings</caption>
                 <thead>
                     <tr>
@@ -156,7 +264,8 @@
             }
 
             $scope.renderStats = function(){
-                var league = $("#league").val(),
+                var $statsContent = $("#stats-content"),
+                    league = $("#league").val(),
                     division = $("#division").val(), 
                     ws = $("#category").val(),
                     category = 
@@ -170,43 +279,78 @@
                         var source = $("#"+category+"-template").html();
                         var template = Handlebars.compile(source);
                         var entry = $scope.stats.data.feed.entry;
-                        // var data = {
-                        //     entry : [{roller: "Joe", wk1: "33.3"}, {roller: "Pete", wk1: "33.3"}, {roller: "Dave", wk1: "33.3"}]
-                            
-                        // };
-
                         var data = {};
                             data.entry = [];
+                            if(entry){
+                                for (var x=0; x<entry.length;x++){
+                                    var tempObj = {};
+                                        if(category === "playerStats"){
+                                            tempObj.roller = entry[x].gsx$roller['$t'];    
+                                            tempObj.wk1 = entry[x].gsx$wk1['$t'];
+                                            tempObj.wk2 = entry[x].gsx$wk2['$t'];
+                                            tempObj.wk3 = entry[x].gsx$wk3['$t'];
+                                            tempObj.wk4 = entry[x].gsx$wk4['$t'];
+                                            tempObj.wk5 = entry[x].gsx$wk5['$t'];
+                                            tempObj.wk6 = entry[x].gsx$wk6['$t'];
+                                            tempObj.wk7 = entry[x].gsx$wk7['$t'];
+                                            tempObj.wk8 = entry[x].gsx$wk8['$t'];
+                                            tempObj.total = entry[x].gsx$total['$t'];
+                                            tempObj.avg = entry[x].gsx$avg['$t'];
+                                        } 
+                                        else if(category === "marks"){
+                                            tempObj.roller = entry[x].gsx$roller['$t'];    
+                                            tempObj.wk1 = entry[x].gsx$wk1['$t'];
+                                            tempObj.wk2 = entry[x].gsx$wk2['$t'];
+                                            tempObj.wk3 = entry[x].gsx$wk3['$t'];
+                                            tempObj.wk4 = entry[x].gsx$wk4['$t'];
+                                            tempObj.wk5 = entry[x].gsx$wk5['$t'];
+                                            tempObj.wk6 = entry[x].gsx$wk6['$t'];
+                                            tempObj.wk7 = entry[x].gsx$wk7['$t'];
+                                            tempObj.wk8 = entry[x].gsx$wk8['$t'];
+                                            tempObj.total = entry[x].gsx$total['$t'];
+                                        } 
+                                        else if(category === "standings"){
+                                            tempObj.team = entry[x].gsx$team['$t'];    
+                                            tempObj.avg = entry[x].gsx$avg['$t'];
+                                            tempObj.total = entry[x].gsx$total['$t'];
+                                            tempObj.high = entry[x].gsx$high['$t'];
+                                            tempObj.pint = entry[x].gsx$pint['$t'];
+                                            tempObj.bid = entry[x].gsx$bid['$t'];
+                                        } 
+                                        else {
+                                            tempObj.team = entry[x].gsx$team['$t'];    
+                                            tempObj.total = entry[x].gsx$total['$t'];
+                                            tempObj.wk1 = entry[x].gsx$wk1['$t'];
+                                            tempObj.wk2 = entry[x].gsx$wk2['$t'];
+                                            tempObj.wk3 = entry[x].gsx$wk3['$t'];
+                                            tempObj.wk4 = entry[x].gsx$wk4['$t'];
+                                            tempObj.wk5 = entry[x].gsx$wk5['$t'];
+                                            tempObj.wk6 = entry[x].gsx$wk6['$t'];
+                                            tempObj.wk7 = entry[x].gsx$wk7['$t'];
+                                            tempObj.wk8 = entry[x].gsx$wk8['$t'];
+                                            tempObj.played = entry[x].gsx$played['$t'];
+                                        }
 
-                            for (var x=0; x<entry.length;x++){
-                                var tempObj = {};
-                                    if(category === "marks" || category === "playerStats"){
-                                        tempObj.roller = entry[x].gsx$roller['$t'];    
-                                    }
-                                    
-                                    tempObj.wk1 = entry[x].gsx$wk1['$t'];
-                                    tempObj.wk2 = entry[x].gsx$wk2['$t'];
-                                    tempObj.wk3 = entry[x].gsx$wk3['$t'];
-                                    tempObj.wk4 = entry[x].gsx$wk4['$t'];
-                                    tempObj.wk5 = entry[x].gsx$wk5['$t'];
-                                    tempObj.wk6 = entry[x].gsx$wk6['$t'];
-                                    tempObj.wk7 = entry[x].gsx$wk7['$t'];
-                                    tempObj.wk8 = entry[x].gsx$wk8['$t'];
-                                    tempObj.total = entry[x].gsx$total['$t'];
-                                    tempObj.avg = entry[x].gsx$avg['$t'];
+                                    data.entry.push(tempObj);
 
-
-                                data.entry.push(tempObj);
+                                }   
+                                    $statsContent.empty().append(template(data)).fadeIn();
                             }
+                            else{
+                                $( $statsContent ).hide();
+                                $statsContent.empty();
+                                $("<table><tr><td colspan='10' style='width:900px;text-align:center'>No one yet! Why don't YOU be the first?</td></tr></table>").appendTo($statsContent);
+                                $( $statsContent ).fadeIn();
+                            }
+                            
 
 
-                        $log.log("data", data);
-                        $log.log("time to render");
-                        $log.log(template(data));
+                        // $log.log("data", data);
+                        // $log.log("time to render");
+
+
                     })
                 }
-
-
 
             }
             $scope.createDivisionSelectBox = function(){
